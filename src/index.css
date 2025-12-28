@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-cyber-darker text-white font-sans antialiased;
+  }
+}
+
+@layer components {
+  .cyber-button {
+    @apply px-6 py-3 rounded-lg font-bold text-white
+           transition-all duration-300
+           hover:scale-105 hover:shadow-lg
+           active:scale-95;
+  }
+
+  .cyber-input {
+    @apply px-4 py-3 rounded-lg
+           bg-cyber-dark/50 border-2 border-cyber-primary/30
+           text-white placeholder-gray-400
+           focus:border-cyber-primary focus:outline-none
+           transition-all duration-300;
+  }
+
+  .neon-text {
+    text-shadow: 0 0 10px currentColor, 0 0 20px currentColor, 0 0 30px currentColor;
+  }
+
+  .glass-panel {
+    @apply bg-cyber-dark/30 backdrop-blur-md
+           border border-cyber-primary/20
+           rounded-2xl;
+  }
+}
+
+/* Typewriter cursor effect */
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.typewriter-cursor {
+  animation: blink 1s infinite;
+}
