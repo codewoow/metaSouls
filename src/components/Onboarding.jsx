@@ -14,9 +14,9 @@ import {
   Rocket,
 } from 'lucide-react';
 
-const Onboarding = () => {
+const Onboarding = ({ onReviewStart, reviewOther }) => {
   // 状态管理
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(reviewOther ? 2 : 0);
   const [userName, setUserName] = useState('');
   const [level, setLevel] = useState(null);
   const [questionId, setQuestionId] = useState(null);
@@ -24,7 +24,7 @@ const Onboarding = () => {
   const [reason, setReason] = useState(null);
 
   // 动画状态
-  const [showVideo, setShowVideo] = useState(true);
+  const [showVideo, setShowVideo] = useState(reviewOther ? false : true);
   const [isVideoSkipped, setIsVideoSkipped] = useState(false);
   const [displayedText, setDisplayedText] = useState('');
   const [showOptions, setShowOptions] = useState(false);
@@ -37,7 +37,7 @@ const Onboarding = () => {
   // NPC 对话脚本
   const dialogues = {
     1: `你好！我是你的复盘助手。${userName ? `很高兴见到你，${userName}！` : ''}勇士，怎么称呼你？`,
-    2: `收到，${userName}！这次我们挑战的是 GESP 几级？`,
+    2: reviewOther ? '好的，让我们继续复盘其他题目！这次是 GESP 几级？' : `收到，${userName}！这次我们挑战的是 GESP 几级？`,
     3: '这次考试有两道编程大题，你想先复盘哪一道？',
     4: '凭记忆，这道题你当时拿了多少分？',
     5: getStep5Dialogue(score),
@@ -58,6 +58,7 @@ const Onboarding = () => {
   // 打字机效果
   useEffect(() => {
     if (step === 0) return; // 视频步骤不打字
+    if (step === 1) return; // Step 1 单独处理
 
     const text = dialogues[step];
     setDisplayedText('');
@@ -97,7 +98,17 @@ const Onboarding = () => {
         clearTimeout(optionsTimeoutRef.current);
       }
     };
-  }, [step, score]);
+  }, [step, score, reviewOther]);
+
+  // Step 1: 实时更新对话文本（不影响输入焦点）
+  useEffect(() => {
+    if (step === 1) {
+      const step1Text = '你好！我是你的复盘助手。勇士，怎么称呼你？';
+      setDisplayedText(step1Text);
+      setIsTyping(false);
+      setShowOptions(true);
+    }
+  }, [step]);
 
   // 视频结束处理
   const handleVideoEnd = () => {
@@ -138,8 +149,7 @@ const Onboarding = () => {
   };
 
   const handleStartReview = () => {
-    console.log('开始复盘！', { userName, level, questionId, score, reason });
-    alert('🚀 准备进入复盘模块！');
+    onReviewStart?.({ userName, level, questionId, score, reason });
   };
 
   // 重置所有步骤
@@ -326,9 +336,9 @@ const Onboarding = () => {
                   {step === 4 && (
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       {[
-                        { value: 25, label: '满分', emoji: '🟢', color: 'from-cyber-success to-green-600', border: 'border-cyber-success/50' },
-                        { value: 12.5, label: '半对', emoji: '🟡', color: 'from-cyber-warning to-yellow-600', border: 'border-cyber-warning/50' },
                         { value: 0, label: '没做/零分', emoji: '🔴', color: 'from-cyber-danger to-red-600', border: 'border-cyber-danger/50' },
+                        { value: 12.5, label: '半对', emoji: '🟡', color: 'from-cyber-warning to-yellow-600', border: 'border-cyber-warning/50' },
+                        { value: 25, label: '满分', emoji: '🟢', color: 'from-cyber-success to-green-600', border: 'border-cyber-success/50' },
                       ].map((s) => (
                         <motion.button
                           key={s.value}
